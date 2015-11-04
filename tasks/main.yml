@@ -6,22 +6,23 @@
 - name: Per-user group creation
   group: >
     name={{ item.username }}
-    gid={{ item.uid }}
+    gid={{ item.uid | default(omit) }}
     system={{ item.system | default('no') }}
   with_items: users
   when: users_create_per_user_group
   tags: ['users','configuration']
 - name: User creation
   user: >
-    name="{{item.username}}"
+    name={{item.username}}
+    uid={{ item.uid | default(omit) }}
     group="{{ item.username if users_create_per_user_group else users_group }}"
     groups="{{item.groups | default('') | join(',')}}"
     shell={{item.shell if item.shell is defined else users_default_shell}}
     password="{{item.password if item.password is defined else '!'}}"
-    comment="{{item.name}}"
-    uid="{{item.uid}}"
+    comment="{{ item.name | default('') }}"
     createhome="{{ item.createhome | default('yes' if users_create_homedirs else 'no')}}"
     system={{ item.system | default('no') }}
+    append={{ item.append | default('no') }}
   with_items: users
   tags: ['users','configuration']
 
